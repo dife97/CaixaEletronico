@@ -28,16 +28,20 @@ class WithdrawViewModel {
             calculateWithdrawExerciseTwo(value: withdrawalValue)
         }
     }
+}
+
+//MARK: - Exercise 1
+extension WithdrawViewModel {
     
     private func calculateWithdrawExerciseOne(value: Int) {
         
         let notasDisponiveis = [50, 10, 5, 2]
         
-        var result: [BankNoteModel] = []
-        
         var valorRestante = value
-
+        
         var quantidadeDeNotas = 0
+        
+        var result: [BankNoteModel] = []
 
         for nota in notasDisponiveis {
 
@@ -59,10 +63,12 @@ class WithdrawViewModel {
         
         delegate?.didCalculateExerciseOne(results: result)
     }
+}
+
+//MARK: - Exercise 2
+extension WithdrawViewModel {
     
     private func calculateWithdrawExerciseTwo(value: Int) {
-        
-        var valorRestante = value
         
         let notasDisponiveis: [BankNoteModel] = [
             BankNoteModel(nota: 50, quantidadeDeNotas: 3),
@@ -70,9 +76,13 @@ class WithdrawViewModel {
             BankNoteModel(nota: 5, quantidadeDeNotas: 50),
             BankNoteModel(nota: 2, quantidadeDeNotas: 20)
         ]
-
+        
+        var valorRestante = value
+        
         var quantidadeDeNotas = 0
 
+        var result: [BankNoteModel] = []
+        
         var totalDisponivel: Int {
             
             var total = 0
@@ -86,39 +96,32 @@ class WithdrawViewModel {
         
         if valorRestante > totalDisponivel {
             delegate?.valorIndisponivel(message: "Notas indisponíveis")
+            
+            return
+        }
+        
+        for nota in notasDisponiveis {
+            
+            while valorRestante >= nota.nota {
+                
+                if quantidadeDeNotas == nota.quantidadeDeNotas { break }
+                
+                if valorRestante % nota.nota > 3 || valorRestante % nota.nota == 2 || valorRestante % nota.nota == 0 {
+                    valorRestante -= nota.nota
+                    
+                    quantidadeDeNotas += 1
+                } else { break }
+            }
+            
+            result.append(BankNoteModel(nota: nota.nota, quantidadeDeNotas: quantidadeDeNotas))
+            
+            quantidadeDeNotas = 0
+        }
+        
+        if valorRestante != 0 {
+            delegate?.valorIndisponivel(message: "Valor indisponível")
         } else {
-            
-            var result: [BankNoteModel] = []
-            
-            for nota in notasDisponiveis {
-                
-                var qtdUsada = 0
-
-                while valorRestante >= nota.nota {
-                    
-                    if qtdUsada == nota.quantidadeDeNotas { break }
-                    
-                    if valorRestante % nota.nota > 3 || valorRestante % nota.nota == 2 || valorRestante % nota.nota == 0 {
-                        valorRestante -= nota.nota
-            
-                        quantidadeDeNotas += 1
-                        
-                        qtdUsada += 1
-                    } else {
-                        break
-                    }
-                }
-                
-                result.append(BankNoteModel(nota: nota.nota, quantidadeDeNotas: quantidadeDeNotas))
-            
-                quantidadeDeNotas = 0
-            }
-            
-            if valorRestante != 0 {
-                delegate?.valorIndisponivel(message: "Valor indisponível")
-            } else {
-                delegate?.didCalculateExerciseOne(results: result)
-            }
+            delegate?.didCalculateExerciseOne(results: result)
         }
     }
 }
