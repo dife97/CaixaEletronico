@@ -72,6 +72,11 @@ extension WithdrawViewController: WithdrawViewModelDelegate {
         
         updateWithdrawTextField(with: message)
     }
+    
+    func errorToCalculate(message: String) {
+        
+        print("[WithdrawViewController] Error: \(message)")
+    }
 }
 
 extension WithdrawViewController {

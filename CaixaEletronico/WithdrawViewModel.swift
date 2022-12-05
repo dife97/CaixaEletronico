@@ -5,6 +5,8 @@ protocol WithdrawViewModelDelegate: AnyObject {
     func didCalculateExerciseOne(results: [BankNoteModel])
     
     func valorIndisponivel(message: String)
+    
+    func errorToCalculate(message: String)
 }
 
 class WithdrawViewModel {
@@ -26,6 +28,10 @@ class WithdrawViewModel {
         
         if exercise == 1 {
             calculateWithdrawExerciseTwo(value: withdrawalValue)
+        }
+        
+        if exercise > 1 {
+            delegate?.errorToCalculate(message: "Erro inesperado")
         }
     }
 }
