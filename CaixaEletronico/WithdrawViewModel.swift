@@ -1,10 +1,3 @@
-//
-//  WithdrawViewModel.swift
-//  CaixaEletronico
-//
-//  Created by Diego Ferreira on 05/12/22.
-//
-
 import Foundation
 
 protocol WithdrawViewModelDelegate: AnyObject {

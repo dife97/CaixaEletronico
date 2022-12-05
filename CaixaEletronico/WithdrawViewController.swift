@@ -1,10 +1,3 @@
-//
-//  ViewController.swift
-//  CaixaEletronico
-//
-//  Created by Diego Ferreira on 03/12/22.
-//
-
 import UIKit
 
 class WithdrawViewController: UIViewController {
@@ -68,15 +61,20 @@ extension WithdrawViewController: WithdrawViewModelDelegate {
             text.append("\(result.quantidadeDeNotas) \(result.quantidadeDeNotas > 1 ? "notas" : "nota") de R$ \(result.nota)\n")
         }
         
-        resultLabel.text = text
-        resultLabel.isHidden = false
-        
-        withdrawalTextField.resignFirstResponder()
+        updateWithdrawTextField(with: text)
     }
     
     func valorIndisponivel(message: String) {
         
-        resultLabel.text = message
+        updateWithdrawTextField(with: message)
+    }
+}
+
+extension WithdrawViewController {
+    
+    private func updateWithdrawTextField(with text: String) {
+        
+        resultLabel.text = text
         resultLabel.isHidden = false
         
         withdrawalTextField.resignFirstResponder()
