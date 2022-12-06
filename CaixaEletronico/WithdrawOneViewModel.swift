@@ -2,11 +2,11 @@ import Foundation
 
 protocol WithdrawViewModelDelegate: AnyObject {
     
-    func didCalculateExerciseOne(results: [BankNoteModel])
+    func didCalculateWithdraw(results: [BankNoteModel])
     
-    func valorIndisponivel(message: String)
+    func unavailableAmount(message: String)
     
-    func errorToCalculate(message: String)
+    func didFailToCalculateWithdraw(message: String)
 }
 
 class WithdrawOneViewModel {
@@ -69,7 +69,7 @@ class WithdrawOneViewModel {
         }
         
         if exercise >= 2 {
-            delegate?.errorToCalculate(message: "Erro inesperado")
+            delegate?.didFailToCalculateWithdraw(message: "Erro inesperado")
         }
     }
 }
@@ -97,7 +97,7 @@ extension WithdrawOneViewModel {
         currentValue = value
         
         if currentValue > totalAmountAvailable {
-            delegate?.valorIndisponivel(message: "Valor indisponível")
+            delegate?.unavailableAmount(message: "Valor indisponível")
 
             clearValues()
             
@@ -128,7 +128,7 @@ extension WithdrawOneViewModel {
             result.append(BankNoteModel(value: value,
                                         availableAmount: banknoteUsesCount))
             
-            delegate?.didCalculateExerciseOne(results: result)
+            delegate?.didCalculateWithdraw(results: result)
             
             clearValues()
             
@@ -145,7 +145,7 @@ extension WithdrawOneViewModel {
                 nextBanknoteFor(exercise: 2, currentBanknote: value)
             
             default:
-                delegate?.errorToCalculate(message: "Erro inesperado")
+                delegate?.didFailToCalculateWithdraw(message: "Erro inesperado")
             }
             
             return
@@ -164,7 +164,7 @@ extension WithdrawOneViewModel {
                 return requestWithdrawExerciseTwo(value: currentValue)
             
             default:
-                delegate?.errorToCalculate(message: "Erro inesperado")
+                delegate?.didFailToCalculateWithdraw(message: "Erro inesperado")
             }
         }
     }
@@ -182,7 +182,7 @@ extension WithdrawOneViewModel {
             
             clearValues()
             
-            delegate?.valorIndisponivel(message: "Cédulas indisponíveis")
+            delegate?.unavailableAmount(message: "Cédulas indisponíveis")
         } else {
             banknoteIndex += 1
             
@@ -194,7 +194,7 @@ extension WithdrawOneViewModel {
                 return requestWithdrawExerciseTwo(value: currentValue)
             
             default:
-                delegate?.errorToCalculate(message: "Erro inesperado")
+                delegate?.didFailToCalculateWithdraw(message: "Erro inesperado")
             }
         }
     }

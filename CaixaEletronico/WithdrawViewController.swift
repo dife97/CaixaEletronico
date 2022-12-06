@@ -54,7 +54,7 @@ class WithdrawViewController: UIViewController {
 
 extension WithdrawViewController: WithdrawViewModelDelegate {
     
-    func didCalculateExerciseOne(results: [BankNoteModel]) {
+    func didCalculateWithdraw(results: [BankNoteModel]) {
         
         var text = ""
         
@@ -68,12 +68,12 @@ extension WithdrawViewController: WithdrawViewModelDelegate {
         updateWithdrawTextField(with: text)
     }
     
-    func valorIndisponivel(message: String) {
+    func unavailableAmount(message: String) {
         
         updateWithdrawTextField(with: message)
     }
     
-    func errorToCalculate(message: String) {
+    func didFailToCalculateWithdraw(message: String) {
         
         print("[WithdrawViewController] Error: \(message)")
     }
