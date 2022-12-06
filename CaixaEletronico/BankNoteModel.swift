@@ -1,5 +1,5 @@
 struct BankNoteModel {
     
-    let banknote: Int
+    let value: Int
     let availableAmount: Int
 }
