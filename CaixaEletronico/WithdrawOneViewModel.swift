@@ -1,5 +1,3 @@
-import Foundation
-
 protocol WithdrawViewModelDelegate: AnyObject {
     
     func didCalculateWithdraw(results: [BankNoteModel])
