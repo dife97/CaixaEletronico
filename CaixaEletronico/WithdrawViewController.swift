@@ -13,11 +13,16 @@ class WithdrawViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        configureView()
+        
+        configureDelegates()
+    }
+    
+    private func configureView() {
+        
         configureExerciseSegmentedControl()
         
         configureWithdrawTextField()
-        
-        configureDelegates()
     }
     
     private func configureExerciseSegmentedControl() {
@@ -29,6 +34,7 @@ class WithdrawViewController: UIViewController {
     
     private func configureWithdrawTextField() {
         
+        withdrawalTextField.delegate = self
         withdrawalTextField.becomeFirstResponder()
     }
     
@@ -87,5 +93,16 @@ extension WithdrawViewController {
         resultLabel.isHidden = false
         
         withdrawalTextField.resignFirstResponder()
+    }
+}
+
+extension WithdrawViewController: UITextFieldDelegate {
+    
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        
+        resultLabel.text = ""
+        resultLabel.isHidden = true
+        
+        return true
     }
 }
