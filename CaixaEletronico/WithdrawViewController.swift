@@ -8,7 +8,7 @@ class WithdrawViewController: UIViewController {
 
     @IBOutlet weak var resultLabel: UILabel!
     
-    private let withdrawViewModel = WithdrawViewModel()
+    private let withdrawViewModel = WithdrawOneViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()

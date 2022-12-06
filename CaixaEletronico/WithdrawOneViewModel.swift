@@ -9,7 +9,34 @@ protocol WithdrawViewModelDelegate: AnyObject {
     func errorToCalculate(message: String)
 }
 
-class WithdrawViewModel {
+class WithdrawOneViewModel {
+    
+    let notasDisponiveis: [BankNoteModel] = [
+        BankNoteModel(nota: 50, quantidadeDeNotas: 3),
+        BankNoteModel(nota: 10, quantidadeDeNotas: 10),
+        BankNoteModel(nota: 5, quantidadeDeNotas: 50),
+        BankNoteModel(nota: 2, quantidadeDeNotas: 20)
+    ]
+    
+    var valorRestante = 0
+    
+    var quantidadeDeNotas = 0
+    
+    var result: [BankNoteModel] = []
+    
+    var banknotesIndex = 0
+    
+    var menorCedula: Int {
+        var menorCedula = notasDisponiveis[0].nota
+        
+        for nota in notasDisponiveis {
+            if nota.nota < menorCedula {
+                menorCedula = nota.nota
+            }
+        }
+        
+        return menorCedula
+    }
     
     private weak var delegate: WithdrawViewModelDelegate?
     
@@ -23,7 +50,7 @@ class WithdrawViewModel {
               let withdrawalValue = Int(withdrawalString) else { return }
             
         if exercise == 0 {
-            calculateWithdrawExerciseOne(value: withdrawalValue)
+            requestWithdrawExerciseOne(value: withdrawalValue)
         }
         
         if exercise == 1 {
@@ -37,42 +64,52 @@ class WithdrawViewModel {
 }
 
 //MARK: - Exercise 1
-extension WithdrawViewModel {
+extension WithdrawOneViewModel {
     
-    private func calculateWithdrawExerciseOne(value: Int) {
+    func requestWithdrawExerciseOne(value: Int) {
         
-        let notasDisponiveis = [50, 10, 5, 2]
+        let nota = notasDisponiveis[banknotesIndex].nota
         
-        var valorRestante = value
+        valorRestante = value
         
-        var quantidadeDeNotas = 0
-        
-        var result: [BankNoteModel] = []
-
-        for nota in notasDisponiveis {
-
-            while valorRestante >= nota {
-                
-                if valorRestante % nota > 3 || valorRestante % nota == 2 || valorRestante % nota == 0 {
-                    valorRestante -= nota
-                    
-                    quantidadeDeNotas += 1
-                } else {
-                    break
-                }
-            }
+        if valorRestante - nota == 0 {
+            valorRestante -= nota
             
-            result.append(BankNoteModel(nota: nota, quantidadeDeNotas: quantidadeDeNotas))
-
-            quantidadeDeNotas = 0
+            quantidadeDeNotas += 1
+            
+            result.append(BankNoteModel(nota: nota,
+                                        quantidadeDeNotas: quantidadeDeNotas))
+            
+            delegate?.didCalculateExerciseOne(results: result)
+            
+            clearValues()
+            
+            return
         }
         
-        delegate?.didCalculateExerciseOne(results: result)
+        if valorRestante - nota < 0 || valorRestante - nota == 3 || valorRestante - nota < menorCedula {
+            
+            if quantidadeDeNotas > 0 {
+                result.append(BankNoteModel(nota: nota, quantidadeDeNotas: quantidadeDeNotas))
+            }
+            
+            quantidadeDeNotas = 0
+            
+            nextBanknote()
+        }
+        
+        if valorRestante - nota > 0 {
+            valorRestante -= nota
+            
+            quantidadeDeNotas += 1
+            
+            return requestWithdrawExerciseOne(value: valorRestante)
+        }
     }
 }
 
 //MARK: - Exercise 2
-extension WithdrawViewModel {
+extension WithdrawOneViewModel {
     
     private func calculateWithdrawExerciseTwo(value: Int) {
         
@@ -129,5 +166,34 @@ extension WithdrawViewModel {
         } else {
             delegate?.didCalculateExerciseOne(results: result)
         }
+    }
+}
+
+//MARK: - Private Functions
+extension WithdrawOneViewModel {
+    
+    private func nextBanknote() {
+        
+        if banknotesIndex + 1 >= notasDisponiveis.count && valorRestante > 0 {
+            
+            clearValues()
+            
+            delegate?.valorIndisponivel(message: "Cédulas indisponíveis")
+        } else {
+            banknotesIndex += 1
+            
+            return requestWithdrawExerciseOne(value: valorRestante)
+        }
+    }
+    
+    private func clearValues() {
+        
+        valorRestante = 0
+        
+        quantidadeDeNotas = 0
+        
+        result = []
+        
+        banknotesIndex = 0
     }
 }
