@@ -11,31 +11,31 @@ protocol WithdrawViewModelDelegate: AnyObject {
 
 class WithdrawOneViewModel {
     
-    let notasDisponiveis: [BankNoteModel] = [
-        BankNoteModel(nota: 50, quantidadeDeNotas: 3),
-        BankNoteModel(nota: 10, quantidadeDeNotas: 10),
-        BankNoteModel(nota: 5, quantidadeDeNotas: 50),
-        BankNoteModel(nota: 2, quantidadeDeNotas: 20)
+    let availableBanknotes: [BankNoteModel] = [
+        BankNoteModel(banknote: 50, availableAmount: 3),
+        BankNoteModel(banknote: 10, availableAmount: 10),
+        BankNoteModel(banknote: 5, availableAmount: 50),
+        BankNoteModel(banknote: 2, availableAmount: 20)
     ]
     
-    var valorRestante = 0
+    var currentValue = 0
     
-    var quantidadeDeNotas = 0
+    var banknoteUsesCount = 0
     
     var result: [BankNoteModel] = []
     
     var banknotesIndex = 0
     
-    var menorCedula: Int {
-        var menorCedula = notasDisponiveis[0].nota
+    var smallestBanknote: Int {
+        var banknote = availableBanknotes[0].banknote
         
-        for nota in notasDisponiveis {
-            if nota.nota < menorCedula {
-                menorCedula = nota.nota
+        for nota in availableBanknotes {
+            if nota.banknote < banknote {
+                banknote = nota.banknote
             }
         }
         
-        return menorCedula
+        return banknote
     }
     
     private weak var delegate: WithdrawViewModelDelegate?
@@ -57,7 +57,7 @@ class WithdrawOneViewModel {
             calculateWithdrawExerciseTwo(value: withdrawalValue)
         }
         
-        if exercise > 1 {
+        if exercise >= 2 {
             delegate?.errorToCalculate(message: "Erro inesperado")
         }
     }
@@ -68,17 +68,17 @@ extension WithdrawOneViewModel {
     
     func requestWithdrawExerciseOne(value: Int) {
         
-        let nota = notasDisponiveis[banknotesIndex].nota
+        let currentBanknote = availableBanknotes[banknotesIndex].banknote
         
-        valorRestante = value
+        currentValue = value
         
-        if valorRestante - nota == 0 {
-            valorRestante -= nota
+        if currentValue - currentBanknote == 0 {
+            currentValue -= currentBanknote
             
-            quantidadeDeNotas += 1
+            banknoteUsesCount += 1
             
-            result.append(BankNoteModel(nota: nota,
-                                        quantidadeDeNotas: quantidadeDeNotas))
+            result.append(BankNoteModel(banknote: currentBanknote,
+                                        availableAmount: banknoteUsesCount))
             
             delegate?.didCalculateExerciseOne(results: result)
             
@@ -87,23 +87,23 @@ extension WithdrawOneViewModel {
             return
         }
         
-        if valorRestante - nota < 0 || valorRestante - nota == 3 || valorRestante - nota < menorCedula {
+        if currentValue - currentBanknote < 0 || currentValue - currentBanknote == 3 || currentValue - currentBanknote < smallestBanknote {
             
-            if quantidadeDeNotas > 0 {
-                result.append(BankNoteModel(nota: nota, quantidadeDeNotas: quantidadeDeNotas))
+            if banknoteUsesCount > 0 {
+                result.append(BankNoteModel(banknote: currentBanknote, availableAmount: banknoteUsesCount))
             }
             
-            quantidadeDeNotas = 0
+            banknoteUsesCount = 0
             
             nextBanknote()
         }
         
-        if valorRestante - nota > 0 {
-            valorRestante -= nota
+        if currentValue - currentBanknote > 0 {
+            currentValue -= currentBanknote
             
-            quantidadeDeNotas += 1
+            banknoteUsesCount += 1
             
-            return requestWithdrawExerciseOne(value: valorRestante)
+            return requestWithdrawExerciseOne(value: currentValue)
         }
     }
 }
@@ -113,59 +113,115 @@ extension WithdrawOneViewModel {
     
     private func calculateWithdrawExerciseTwo(value: Int) {
         
-        let notasDisponiveis: [BankNoteModel] = [
-            BankNoteModel(nota: 50, quantidadeDeNotas: 3),
-            BankNoteModel(nota: 10, quantidadeDeNotas: 10),
-            BankNoteModel(nota: 5, quantidadeDeNotas: 50),
-            BankNoteModel(nota: 2, quantidadeDeNotas: 20)
-        ]
+        let currentBanknote = availableBanknotes[banknotesIndex].banknote
         
-        var valorRestante = value
+        currentValue = value
         
-        var quantidadeDeNotas = 0
-
-        var result: [BankNoteModel] = []
-        
-        var totalDisponivel: Int {
+        if currentValue - currentBanknote == 0 {
+            currentValue -= currentBanknote
             
-            var total = 0
+            banknoteUsesCount += 1
             
-            for nota in notasDisponiveis {
-                total += nota.nota * nota.quantidadeDeNotas
-            }
+            result.append(BankNoteModel(banknote: currentBanknote,
+                                        availableAmount: banknoteUsesCount))
             
-            return total
-        }
-        
-        if valorRestante > totalDisponivel {
-            delegate?.valorIndisponivel(message: "Notas indisponíveis")
+            delegate?.didCalculateExerciseOne(results: result)
+            
+            clearValues()
             
             return
         }
         
-        for nota in notasDisponiveis {
+        if currentValue - currentBanknote < 0 || currentValue - currentBanknote == 3 || currentValue - currentBanknote < smallestBanknote {
             
-            while valorRestante >= nota.nota {
-                
-                if quantidadeDeNotas == nota.quantidadeDeNotas { break }
-                
-                if valorRestante % nota.nota > 3 || valorRestante % nota.nota == 2 || valorRestante % nota.nota == 0 {
-                    valorRestante -= nota.nota
-                    
-                    quantidadeDeNotas += 1
-                } else { break }
+            if banknoteUsesCount > 0 {
+                result.append(BankNoteModel(banknote: currentBanknote, availableAmount: banknoteUsesCount))
             }
             
-            result.append(BankNoteModel(nota: nota.nota, quantidadeDeNotas: quantidadeDeNotas))
+            banknoteUsesCount = 0
             
-            quantidadeDeNotas = 0
+            nextBanknote()
         }
         
-        if valorRestante != 0 {
-            delegate?.valorIndisponivel(message: "Valor indisponível")
-        } else {
-            delegate?.didCalculateExerciseOne(results: result)
+        if currentValue - currentBanknote > 0 {
+            currentValue -= currentBanknote
+            
+            banknoteUsesCount += 1
+            
+            return requestWithdrawExerciseOne(value: currentValue)
         }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+//        let notasDisponiveis: [BankNoteModel] = [
+//            BankNoteModel(banknote: 50, availableAmount: 3),
+//            BankNoteModel(banknote: 10, availableAmount: 10),
+//            BankNoteModel(banknote: 5, availableAmount: 50),
+//            BankNoteModel(banknote: 2, availableAmount: 20)
+//        ]
+//
+//        var valorRestante = value
+//
+//        var quantidadeDeNotas = 0
+//
+//        var result: [BankNoteModel] = []
+//
+//        var totalDisponivel: Int {
+//
+//            var total = 0
+//
+//            for nota in notasDisponiveis {
+//                total += nota.banknote * nota.availableAmount
+//            }
+//
+//            return total
+//        }
+//
+//        if valorRestante > totalDisponivel {
+//            delegate?.valorIndisponivel(message: "Notas indisponíveis")
+//
+//            return
+//        }
+//
+//        for nota in notasDisponiveis {
+//
+//            while valorRestante >= nota.banknote {
+//
+//                if quantidadeDeNotas == nota.availableAmount { break }
+//
+//                if valorRestante % nota.banknote > 3 || valorRestante % nota.banknote == 2 || valorRestante % nota.banknote == 0 {
+//                    valorRestante -= nota.banknote
+//
+//                    quantidadeDeNotas += 1
+//                } else { break }
+//            }
+//
+//            result.append(BankNoteModel(banknote: nota.banknote, availableAmount: quantidadeDeNotas))
+//
+//            quantidadeDeNotas = 0
+//        }
+//
+//        if valorRestante != 0 {
+//            delegate?.valorIndisponivel(message: "Valor indisponível")
+//        } else {
+//            delegate?.didCalculateExerciseOne(results: result)
+//        }
     }
 }
 
@@ -174,7 +230,7 @@ extension WithdrawOneViewModel {
     
     private func nextBanknote() {
         
-        if banknotesIndex + 1 >= notasDisponiveis.count && valorRestante > 0 {
+        if banknotesIndex + 1 >= availableBanknotes.count && currentValue > 0 {
             
             clearValues()
             
@@ -182,15 +238,15 @@ extension WithdrawOneViewModel {
         } else {
             banknotesIndex += 1
             
-            return requestWithdrawExerciseOne(value: valorRestante)
+            return requestWithdrawExerciseOne(value: currentValue)
         }
     }
     
     private func clearValues() {
         
-        valorRestante = 0
+        currentValue = 0
         
-        quantidadeDeNotas = 0
+        banknoteUsesCount = 0
         
         result = []
         

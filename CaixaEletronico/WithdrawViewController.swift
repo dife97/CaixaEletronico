@@ -60,9 +60,9 @@ extension WithdrawViewController: WithdrawViewModelDelegate {
         
         for result in results {
             
-            let bankNoteText = result.quantidadeDeNotas > 1 ? "notas" : "nota"
+            let bankNoteText = result.availableAmount > 1 ? "notas" : "nota"
             
-            text.append("\(result.quantidadeDeNotas) \(bankNoteText) de R$ \(result.nota)\n")
+            text.append("\(result.availableAmount) \(bankNoteText) de R$ \(result.banknote)\n")
         }
         
         updateWithdrawTextField(with: text)
