@@ -79,44 +79,18 @@ extension WithdrawOneViewModel {
     
     func requestWithdrawExerciseOne(value: Int) {
         
-        let currentBanknote = availableBanknotes[banknoteIndex].value
+        let currentBanknote = availableBanknotes[banknoteIndex]
         
         currentValue = value
         
-        if currentValue - currentBanknote == 0 {
-            currentValue -= currentBanknote
-            
-            banknoteUsesCount += 1
-            
-            result.append(BankNoteModel(value: currentBanknote,
-                                        availableAmount: banknoteUsesCount))
-            
-            delegate?.didCalculateExerciseOne(results: result)
-            
-            clearValues()
-            
-            return
-        }
-        
-        if currentValue - currentBanknote < 0 || currentValue - currentBanknote == 3 || currentValue - currentBanknote < smallestBanknote {
-            
-            nextBanknoteFor(exercise: 1, currentBanknote: currentBanknote)
-        }
-        
-        if currentValue - currentBanknote > 0 {
-            currentValue -= currentBanknote
-            
-            banknoteUsesCount += 1
-            
-            return requestWithdrawExerciseOne(value: currentValue)
-        }
+        makeWithdrawal(of: currentBanknote.value, forExercise: 1)
     }
 }
 
 //MARK: - Exercise 2
 extension WithdrawOneViewModel {
     
-    private func requestWithdrawExerciseTwo(value: Int) {
+    func requestWithdrawExerciseTwo(value: Int) {
         
         let currentBanknote = availableBanknotes[banknoteIndex]
         
@@ -137,12 +111,21 @@ extension WithdrawOneViewModel {
             return
         }
         
-        if currentValue - currentBanknote.value == 0 {
-            currentValue -= currentBanknote.value
+        makeWithdrawal(of: currentBanknote.value, forExercise: 2)
+    }
+}
+
+//MARK: - Private Functions
+extension WithdrawOneViewModel {
+    
+    private func makeWithdrawal(of value: Int, forExercise exercise: Int) {
+        
+        if currentValue - value == 0 {
+            currentValue -= value
             
             banknoteUsesCount += 1
             
-            result.append(BankNoteModel(value: currentBanknote.value,
+            result.append(BankNoteModel(value: value,
                                         availableAmount: banknoteUsesCount))
             
             delegate?.didCalculateExerciseOne(results: result)
@@ -152,25 +135,39 @@ extension WithdrawOneViewModel {
             return
         }
         
-        if currentValue - currentBanknote.value < 0 || currentValue - currentBanknote.value == 3 || currentValue - currentBanknote.value < smallestBanknote {
+        if currentValue - value < 0 || currentValue - value == 3 || currentValue - value < smallestBanknote {
             
-            nextBanknoteFor(exercise: 2, currentBanknote: currentBanknote.value)
+            switch exercise {
+            case 1:
+                nextBanknoteFor(exercise: 1, currentBanknote: value)
+            
+            case 2:
+                nextBanknoteFor(exercise: 2, currentBanknote: value)
+            
+            default:
+                delegate?.errorToCalculate(message: "Erro inesperado")
+            }
             
             return
         }
         
-        if currentValue - currentBanknote.value > 0 {
-            currentValue -= currentBanknote.value
+        if currentValue - value > 0 {
+            currentValue -= value
             
             banknoteUsesCount += 1
             
-            return requestWithdrawExerciseTwo(value: currentValue)
+            switch exercise {
+            case 1:
+                return requestWithdrawExerciseOne(value: currentValue)
+            
+            case 2:
+                return requestWithdrawExerciseTwo(value: currentValue)
+            
+            default:
+                delegate?.errorToCalculate(message: "Erro inesperado")
+            }
         }
     }
-}
-
-//MARK: - Private Functions
-extension WithdrawOneViewModel {
     
     private func nextBanknoteFor(exercise: Int, currentBanknote: Int) {
         
@@ -205,11 +202,8 @@ extension WithdrawOneViewModel {
     private func clearValues() {
         
         currentValue = 0
-        
         banknoteUsesCount = 0
-        
         result = []
-        
         banknoteIndex = 0
     }
 }
